@@ -1,6 +1,8 @@
 import { User } from '../models/userModel.js';
-import bcrypt from 'bcrypt';
+import bcrypt, { compare } from 'bcrypt';
 import sendToken from '../routes/features.js';
+import { errorMiddleware, TryCatch } from '../middlewares/error.js';
+import { ErrorHandler } from '../utils/ErrorHandler.js';
 
 const newUser = async (req, res) => {
   const { name, username, email, password, bio } = req.body;
@@ -25,23 +27,33 @@ const newUser = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+const login = TryCatch(async (req, res, next) => {
   const { username, password } = req.body;
 
-  try {
-    const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({ username }).select("+password");
 
-    if (!user) {
-      return res.json({ success: false, message: 'User not found' });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.json({ success: false, message: 'Invalid credentials' });
-    }
-    sendToken(res, user, 200, 'Login successful');
-  } catch (error) {
-    res.json({ success: false, message: error.message });
-  }
-};
+  if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-export { newUser, login };
+  const isMatch = await compare(password, user.password);
+
+  if (!isMatch)
+    return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+  sendToken(res, user, 200, `Welcome Back, ${user.name}`);
+});
+
+
+
+const getMyProfile = TryCatch(async (req, res, next) => {
+  const user = await User.findById(req.user);
+
+  if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+  res.json({
+    success: true,
+    user,
+  });
+});
+
+
+export { newUser, login , getMyProfile };

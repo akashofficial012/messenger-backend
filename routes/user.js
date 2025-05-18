@@ -1,10 +1,12 @@
 import express from 'express';
-import { login, newUser } from '../controller/user.controller.js'; // include `.js` extension!
-import {  singleAvatar } from '../middlewares/multer.js';
+import {   getMyProfile, login, newUser } from '../controller/user.controller.js'; // include `.js` extension!
+import { isAuthenticated } from '../middlewares/auth.js';
+// import {  singleAvatar } from '../middlewares/multer.js';
 
 const router = express.Router();
 
 router.post('/login', login);
 router.post('/register',  newUser);
+router.get('/me', isAuthenticated, getMyProfile);
 
 export default router;
