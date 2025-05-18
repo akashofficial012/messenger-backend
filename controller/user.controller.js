@@ -55,5 +55,15 @@ const getMyProfile = TryCatch(async (req, res, next) => {
   });
 });
 
+const logout = TryCatch(async (req, res, next) => {
+  res.cookie("chattu-token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});
 
-export { newUser, login , getMyProfile };
+export { newUser, login , getMyProfile , logout};
