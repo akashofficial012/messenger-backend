@@ -66,4 +66,8 @@ const logout = TryCatch(async (req, res, next) => {
   });
 });
 
-export { newUser, login , getMyProfile , logout};
+const searchUser = (async (req, res, next) => {
+  const{ name } = req.query;
+});
+
+export { newUser, login , getMyProfile , logout , searchUser };
